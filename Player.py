@@ -1,3 +1,4 @@
+from utils import *
 class Player:
     def __init__(self, name, char):
         self.__score = 0
@@ -12,6 +13,10 @@ class Player:
 
     def getChar(self):
         return self.__char
+
+    def getText(self):
+        string = str(self.__name) + ": " + str(self.__score)
+        return fontsConfig['mediumFont'].render(string, True, fontsConfig['titleColor'])
 
     def setScore(self, score):
         self.__score = score

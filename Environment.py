@@ -14,6 +14,8 @@ class Environment:
         self.__clock = pygame.time.Clock()
 
         self.__running = True
+
+        self.__round = 0
         
         if len(players) == 1:
             self.__mode = Mode.SINGLEPLAYER
@@ -43,7 +45,7 @@ class Environment:
                     pygame.quit()
                     sys.exit()
 
-                if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0]:
                     position = pygame.mouse.get_pos()
 
                     for line in self.__board:
@@ -69,9 +71,17 @@ class Environment:
             self.draw()
 
     def draw(self):
-        #Draw board
+
         self.__window.fill(gameConfig['screenColor'])
 
+        #Draw title
+        self.__window.blit(gameConfig['titleText'], gameConfig['titlePos'])
+
+        #Draw names and scores
+        self.__window.blit(self.__players[0].getText(), gameConfig['namesPos'])
+        self.__window.blit(self.__players[1].getText(), (gameConfig['namesPos'][0], gameConfig['namesPos'][1] + 40))
+
+        #Draw board
         bSize = gameConfig['boardSize']
         boardPos = gameConfig['boardPos']
 
@@ -95,6 +105,10 @@ class Environment:
                 elif cell.getChar() == Char.O:
                     self.__window.blit(gameConfig['oText'], (x + cell.getArea().left, y + cell.getArea().top))
 
+        # Round
+        roundText = fontsConfig['mediumFont'].render("Round: " + str(self.__round), True, fontsConfig['titleColor'])
+        self.__window.blit(roundText, gameConfig['roundPos'])
+
         pygame.display.update()
 
     def checkGameOver(self):
@@ -109,7 +123,11 @@ class Environment:
     def endGame(self, area1, area2):
 
         currPlayerId = self.__currPlayer
+        currPlayerName = self.__players[currPlayerId].getName()
         currPlayerScore = self.__players[currPlayerId].getScore()
+
+        scoreText = fontsConfig['bigFont'].render(currPlayerName + " scores!!", True, fontsConfig['scoreColor'])
+        self.__window.blit(scoreText, gameConfig['scorePos'])
 
         self.__players[currPlayerId].setScore(currPlayerScore + 1)
 
@@ -123,8 +141,9 @@ class Environment:
         pygame.display.update()
 
     def restart(self):
-
         self.draw()
+
+        self.__round += 1
 
         for line in self.__board:
             for cell in line:
