@@ -1,12 +1,13 @@
-from utils import *
 from Cell import *
-from Player import *
+from GameFunctions import *
 import sys
 
 import pygame
 
 class Environment:
+
     def __init__(self, players):
+
         self.__window = pygame.display.set_mode((gameConfig['width'], gameConfig['height']))
         pygame.display.set_caption("TicTacToe")
 
@@ -32,8 +33,12 @@ class Environment:
             self.__board[line].append(newCell)
 
     def update(self):
-        while(self.__running):
+
+        while self.__running:
+            self.__clock.tick(60)
+
             for event in pygame.event.get():
+
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
@@ -42,8 +47,11 @@ class Environment:
                     position = pygame.mouse.get_pos()
 
                     for line in self.__board:
+
                         for cell in line:
-                            if cell.contains(position):
+
+                            if cell.contains(position) and cell.getChar() == Char.EMPTY:
+
                                 offSet = gameConfig['charOffset']
                                 x = offSet[0]
                                 y = offSet[1]
@@ -53,12 +61,15 @@ class Environment:
                                 else:
                                     cell.setChar(Char.O)
 
-                                self.__currPlayer = (self.__currPlayer + 1) % 2
-
-
+                                #If the game is not over, change the player
+                                if self.checkGameOver() == False:
+                                    self.__currPlayer = (self.__currPlayer + 1) % 2
+                                else:
+                                    pygame.time.delay(2000)
             self.draw()
 
     def draw(self):
+        #Draw board
         self.__window.fill(gameConfig['screenColor'])
 
         bSize = gameConfig['boardSize']
@@ -72,6 +83,7 @@ class Environment:
         pygame.draw.line(self.__window, fontsConfig['lineColor'], (x + 0, y + bSize / 3), (x + bSize, y + bSize / 3))
         pygame.draw.line(self.__window, fontsConfig['lineColor'], (x + 0, y + 2 * bSize / 3), (x + bSize,y + 2 * bSize / 3))
 
+        #Draw characters
         for line in self.__board:
             for cell in line:
                 offSet = gameConfig['charOffset']
@@ -85,5 +97,35 @@ class Environment:
 
         pygame.display.update()
 
+    def checkGameOver(self):
 
+        gameOver1 = checkWinLines(self, self.__board)
+        gameOver2 = checkWinColumns(self, self.__board)
+        gameOver3 = checkWinDiagonal(self, self.__board)
+        gameOver4 = checkGameOverNoWinner(self, self.__board)
 
+        return gameOver1 or gameOver2 or gameOver3 or gameOver4
+
+    def endGame(self, area1, area2):
+
+        currPlayerId = self.__currPlayer
+        currPlayerScore = self.__players[currPlayerId].getScore()
+
+        self.__players[currPlayerId].setScore(currPlayerScore + 1)
+
+        # Draw win line
+        bSize = gameConfig['boardSize']
+
+        initialPos = (area1.left + bSize / 6, area1.top + bSize / 6)
+        finalPos = (area2.left + bSize / 6, area2.top + bSize / 6)
+
+        pygame.draw.line(self.__window, (255, 255, 255), initialPos, finalPos, 5)
+        pygame.display.update()
+
+    def restart(self):
+
+        self.draw()
+
+        for line in self.__board:
+            for cell in line:
+                cell.restart()

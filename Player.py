@@ -12,3 +12,6 @@ class Player:
 
     def getChar(self):
         return self.__char
+
+    def setScore(self, score):
+        self.__score = score

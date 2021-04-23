@@ -16,6 +16,9 @@ class Cell:
         self.__area = pygame.Rect(x + (cellNumber % 3) * bSize / 3, y + (int(cellNumber / 3)) * bSize / 3,
                                   bSize / 3, bSize / 3)
 
+    def restart(self):
+        self.__char = Char.EMPTY
+
     def contains(self, point):
         return self.__area.collidepoint(point)
 

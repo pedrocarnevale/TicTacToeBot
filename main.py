@@ -2,6 +2,7 @@ import pygame
 pygame.init()
 pygame.font.init()
 
+from Player import *
 from Environment import *
 
 player = Player('Pedro', Char.X)
