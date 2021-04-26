@@ -32,6 +32,56 @@ class Button():
         y1 = pos[1]
         return (self.x <= x1 <= self.x + self.width) and (self.y <= y1 <= self.y + self.height)
 
+class MiniMaxState:
+    def __init__(self, board, move = []):
+        self.__board = board
+        self.__nextStates = []
+
+        self.__move = move
+
+        self.__value = 0
+
+    def getBoard(self):
+        return self.__board
+
+    def getValue(self):
+        return self.__value
+
+    def setValue(self, newValue):
+        self.__value = newValue
+
+    def getNextStates(self):
+        return self.__nextStates
+
+    def addNextState(self, newNextState):
+        self.__nextStates.append(newNextState)
+
+    def getMove(self):
+        return self.__move
+'''
+        self.__alpha = float('-inf')
+        self.__beta = float('inf')
+        
+        if self.__MinOrMax == MinOrMax.MIN:
+            self.__value = float('inf')
+        elif self.__MinOrMax == MinOrMax.MAX:
+            self.__value = float('-inf')
+    
+    def getNextStates(self):
+        return self.__nextStates
+
+    def getAlpha(self):
+        return self.__alpha
+
+    def setAlpha(self, newAlpha):
+        self.__alpha = newAlpha
+
+    def getBeta(self):
+        return self.__beta
+
+    def setBeta(self, newBeta):
+        self.__beta = newBeta
+'''
 fontsConfig = {
             'charFont': pygame.font.SysFont("comicsansms", 120),
             'bigFont': pygame.font.SysFont("comicsansms", 40),
