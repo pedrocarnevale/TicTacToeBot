@@ -1,4 +1,5 @@
-from utils import *
+from utils import gameConfig
+from utils import Char
 import pygame
 
 

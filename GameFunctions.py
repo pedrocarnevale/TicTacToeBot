@@ -1,4 +1,4 @@
-from utils import *
+from utils import Char
 
 def checkWinLines(environment, board):
     for line in range(0, 3):

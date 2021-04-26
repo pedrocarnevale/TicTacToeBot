@@ -1,4 +1,7 @@
-from Cell import *
+from utils import Mode
+from utils import gameConfig
+from utils import fontsConfig
+from Cell import Cell
 from GameFunctions import *
 import sys
 
@@ -6,23 +9,17 @@ import pygame
 
 class Environment:
 
-    def __init__(self, players):
+    def __init__(self, mode, players, window):
 
-        self.__window = pygame.display.set_mode((gameConfig['width'], gameConfig['height']))
-        pygame.display.set_caption("TicTacToe")
+        self.__window = window
 
         self.__clock = pygame.time.Clock()
 
         self.__running = True
 
         self.__round = 0
-        
-        if len(players) == 1:
-            self.__mode = Mode.SINGLEPLAYER
-        elif len(players) == 2:
-            self.__mode = Mode.MULTIPLAYER
-        else:
-            raise Exception("Number of players error")
+
+        self.__mode = mode
 
         self.__players = players
         self.__currPlayer = 0
@@ -53,10 +50,6 @@ class Environment:
                         for cell in line:
 
                             if cell.contains(position) and cell.getChar() == Char.EMPTY:
-
-                                offSet = gameConfig['charOffset']
-                                x = offSet[0]
-                                y = offSet[1]
 
                                 if self.__players[self.__currPlayer].getChar() == Char.X:
                                     cell.setChar(Char.X)

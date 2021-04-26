@@ -1,4 +1,4 @@
-from utils import *
+from utils import fontsConfig
 class Player:
     def __init__(self, name, char):
         self.__score = 0

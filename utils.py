@@ -10,6 +10,28 @@ class Mode(Enum):
     SINGLEPLAYER = 0
     MULTIPLAYER = 1
 
+class Button():
+    def __init__(self, text, x, y, color, textSize, width, height):
+        self.text = text
+        self.x = x
+        self.y = y
+        self.color = color
+        self.width = width
+        self.height = height
+        self.textSize = textSize
+
+    def draw(self, window):
+        pygame.draw.rect(window, self.color, (self.x, self.y, self.width, self.height))
+        font = pygame.font.SysFont("comicsansms", self.textSize)
+        text = font.render(self.text, 1, (255, 255, 255))
+        window.blit(text, (self.x + round(self.width / 2) - round(text.get_width() / 2),
+                        self.y + round(self.height / 2) - round(text.get_height() / 2)))
+
+    def click(self, pos):
+        x1 = pos[0]
+        y1 = pos[1]
+        return (self.x <= x1 <= self.x + self.width) and (self.y <= y1 <= self.y + self.height)
+
 fontsConfig = {
             'charFont': pygame.font.SysFont("comicsansms", 120),
             'bigFont': pygame.font.SysFont("comicsansms", 40),
