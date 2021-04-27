@@ -1,5 +1,12 @@
 from enum import Enum
 import pygame
+import copy
+
+class GameState(Enum):
+    NOT_FINISHED = 0
+    DEFEAT = 1
+    TIE = 2
+    WIN = 3
 
 class Char(Enum):
     EMPTY = 0
@@ -23,7 +30,7 @@ class Button():
     def draw(self, window):
         pygame.draw.rect(window, self.color, (self.x, self.y, self.width, self.height))
         font = pygame.font.SysFont("comicsansms", self.textSize)
-        text = font.render(self.text, 1, (255, 255, 255))
+        text = font.render(self.text, True, (255, 255, 255))
         window.blit(text, (self.x + round(self.width / 2) - round(text.get_width() / 2),
                         self.y + round(self.height / 2) - round(text.get_height() / 2)))
 
@@ -33,16 +40,19 @@ class Button():
         return (self.x <= x1 <= self.x + self.width) and (self.y <= y1 <= self.y + self.height)
 
 class MiniMaxState:
-    def __init__(self, board, move = []):
+    def __init__(self, board, move = ()):
         self.__board = board
         self.__nextStates = []
 
         self.__move = move
 
-        self.__value = 0
+        self.__value = float('inf')
 
     def getBoard(self):
         return self.__board
+
+    def setBoard(self, newBoard):
+        self.__board = newBoard
 
     def getValue(self):
         return self.__value

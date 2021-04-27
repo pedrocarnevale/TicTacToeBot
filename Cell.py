@@ -17,6 +17,14 @@ class Cell:
         self.__area = pygame.Rect(x + (cellNumber % 3) * bSize / 3, y + (int(cellNumber / 3)) * bSize / 3,
                                   bSize / 3, bSize / 3)
 
+    def __repr__(self):
+        if self.__char == Char.EMPTY:
+            return ""
+        if self.__char == Char.X:
+            return "X"
+        if self.__char == Char.O:
+            return "O"
+
     def restart(self):
         self.__char = Char.EMPTY
 

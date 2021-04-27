@@ -1,8 +1,10 @@
-from utils import Mode
 from utils import gameConfig
 from utils import fontsConfig
+from utils import Char
+from utils import Mode
+from utils import GameState
 from Cell import Cell
-from GameFunctions import *
+from GameFunctions import checkGameState
 import sys
 
 import pygame
@@ -50,17 +52,39 @@ class Environment:
                         for cell in line:
 
                             if cell.contains(position) and cell.getChar() == Char.EMPTY:
+                                playerChar = self.__players[self.__currPlayer].getChar()
 
-                                if self.__players[self.__currPlayer].getChar() == Char.X:
+                                if playerChar == Char.X:
                                     cell.setChar(Char.X)
                                 else:
                                     cell.setChar(Char.O)
 
                                 #If the game is not over, change the player
-                                if self.checkGameOver() == False:
+                                gameState = checkGameState(self.__board, playerChar)
+
+                                if gameState == GameState.NOT_FINISHED:
                                     self.__currPlayer = (self.__currPlayer + 1) % 2
-                                else:
+
+                                    if self.__mode == Mode.SINGLEPLAYER and self.__currPlayer == 1:
+
+                                        move = self.__players[self.__currPlayer].calculateNextMove(self, self.__board)
+
+                                        playerChar = self.__players[self.__currPlayer].getChar()
+
+                                        if playerChar == Char.X:
+                                            self.__board[move // 3][move % 3].setChar(Char.X)
+                                        else:
+                                            self.__board[move // 3][move % 3].setChar(Char.O)
+
+                                        self.__currPlayer = (self.__currPlayer + 1) % 2
+
+                                gameState = checkGameState(self.__board, playerChar)
+
+                                if gameState != GameState.NOT_FINISHED:
+                                    self.restart()
+                                    self.endGame(gameState)
                                     pygame.time.delay(2000)
+
             self.draw()
 
     def draw(self):
@@ -104,33 +128,30 @@ class Environment:
 
         pygame.display.update()
 
-    def checkGameOver(self):
+    def endGame(self, gameState):
 
-        gameOver1 = checkWinLines(self, self.__board)
-        gameOver2 = checkWinColumns(self, self.__board)
-        gameOver3 = checkWinDiagonal(self, self.__board)
-        gameOver4 = checkGameOverNoWinner(self, self.__board)
+        if gameState != GameState.TIE:
+            currPlayerId = self.__currPlayer
+            currPlayerName = self.__players[currPlayerId].getName()
+            currPlayerScore = self.__players[currPlayerId].getScore()
 
-        return gameOver1 or gameOver2 or gameOver3 or gameOver4
+            scoreText = fontsConfig['bigFont'].render(currPlayerName + " scores!!", True, fontsConfig['scoreColor'])
+            self.__window.blit(scoreText, gameConfig['scorePos'])
 
-    def endGame(self, area1, area2):
+            self.__players[currPlayerId].setScore(currPlayerScore + 1)
 
-        currPlayerId = self.__currPlayer
-        currPlayerName = self.__players[currPlayerId].getName()
-        currPlayerScore = self.__players[currPlayerId].getScore()
-
-        scoreText = fontsConfig['bigFont'].render(currPlayerName + " scores!!", True, fontsConfig['scoreColor'])
-        self.__window.blit(scoreText, gameConfig['scorePos'])
-
-        self.__players[currPlayerId].setScore(currPlayerScore + 1)
-
-        # Draw win line
-        bSize = gameConfig['boardSize']
-
-        initialPos = (area1.left + bSize / 6, area1.top + bSize / 6)
-        finalPos = (area2.left + bSize / 6, area2.top + bSize / 6)
-
-        pygame.draw.line(self.__window, (255, 255, 255), initialPos, finalPos, 5)
+        else:
+            scoreText = fontsConfig['bigFont'].render("Tie!!", True, fontsConfig['scoreColor'])
+            self.__window.blit(scoreText, (gameConfig['scorePos'][0] + 50, gameConfig['scorePos'][1]))
+        '''
+            # Draw win line
+            bSize = gameConfig['boardSize']
+    
+            initialPos = (area1.left + bSize / 6, area1.top + bSize / 6)
+            finalPos = (area2.left + bSize / 6, area2.top + bSize / 6)
+    
+            pygame.draw.line(self.__window, (255, 255, 255), initialPos, finalPos, 5)
+        '''
         pygame.display.update()
 
     def restart(self):

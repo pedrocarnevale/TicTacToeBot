@@ -5,7 +5,7 @@ pygame.font.init()
 from utils import gameConfig
 from utils import Mode
 from utils import Char
-from Player import Player
+from TicTacToeBot import TicTacToeBot
 from PlayerMenu import PlayerMenu
 from GameModeMenu import GameModeMenu
 from Environment import Environment
@@ -31,7 +31,7 @@ if mode == Mode.SINGLEPLAYER:
     else:
         p2Char = Char.X
 
-    players.append(Player("Bot", p2Char))
+    players.append(TicTacToeBot("Bot", p2Char))
 
 else:
     p1Menu = PlayerMenu(1, window)
