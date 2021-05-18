@@ -1,12 +1,11 @@
-from utils import MiniMaxState
 from utils import Char
 from utils import fontsConfig
 from utils import GameState
+from GameFunctions import getNextMoves
 from GameFunctions import checkGameState
 from GameFunctions import numEmptyCells
-from GameFunctions import randomEmptyPosition
-import copy
-
+from GameFunctions import getNewBoard
+import random
 
 class TicTacToeBot:
     def __init__(self, name, char):
@@ -14,113 +13,91 @@ class TicTacToeBot:
         self.__char = char
         self.__score = 0
 
-    def minValue(self, state, alpha, beta):
+    def minValue(self, board, alpha, beta, char):
+        gameState = checkGameState(board, self.__char)
+        if gameState != GameState.NOT_FINISHED:
+            numEmpty = numEmptyCells(board)
+            numEmptyScore = numEmpty + 1
 
-        nextStates = state.getNextStates()
+            if gameState == GameState.WIN:
+                return numEmptyScore, None
 
-        if len(nextStates) == 0:
-            return state.getValue()
+            elif gameState == GameState.DEFEAT:
+                return -numEmptyScore, None
 
-        state.setValue(float('inf'))
+            else:
+                return 0, None
 
-        for newState in nextStates:
-            newValue = self.maxValue(newState, alpha, beta)
+        value = float('inf')
+        bestMove = None
+        nextMoves = getNextMoves(board)
 
-            if newValue < state.getValue():
-                state.setValue(newValue)
+        for move in nextMoves:
+            if char == Char.X:
+                newValue = self.maxValue(getNewBoard(board, move, char), alpha, beta, Char.O)[0]
+            else:
+                newValue = self.maxValue(getNewBoard(board, move, char), alpha, beta, Char.X)[0]
 
-            if newValue <= alpha:
-                return state.getValue()
+            if newValue < value:
+                bestMove = move
+                value = newValue
 
             if newValue < beta:
                 beta = newValue
 
-        return state.getValue()
+            if beta <= alpha:
+                break
+        #print(bestMove)
+        return value, bestMove
 
-    def maxValue(self, state, alpha, beta):
-        nextStates = state.getNextStates()
+    def maxValue(self, board, alpha, beta, char):
+        gameState = checkGameState(board, self.__char)
+        if gameState != GameState.NOT_FINISHED:
+            numEmpty = numEmptyCells(board)
+            numEmptyScore = numEmpty + 1
 
-        if len(nextStates) == 0:
-            return state.getValue()
+            if gameState == GameState.WIN:
+                return numEmptyScore, None
 
-        state.setValue(float('-inf'))
+            elif gameState == GameState.DEFEAT:
+                return -numEmptyScore, None
 
-        for newState in nextStates:
-            newValue = self.minValue(newState, alpha, beta)
+            else:
+                return 0, None
 
-            if newValue > state.getValue():
-                state.setValue(newValue)
+        value = float('-inf')
+        bestMove = None
+        nextMoves = getNextMoves(board)
 
-            if newValue >= beta:
-                return state.getValue()
+        for move in nextMoves:
+            if char == Char.X:
+                newValue = self.minValue(getNewBoard(board, move, char), alpha, beta, Char.O)[0]
+            else:
+                newValue = self.minValue(getNewBoard(board, move, char), alpha, beta, Char.X)[0]
+
+            if newValue > value:
+                bestMove = move
+                value = newValue
 
             if newValue > alpha:
                 alpha = newValue
 
-        return state.getValue()
-
-    def createStateTree(self, currState, char):
-        board = currState.getBoard()
-
-        gameState = checkGameState(board, self.__char)
-
-        if gameState == GameState.NOT_FINISHED:
-            for line in board:
-                for cell in line:
-                    if cell.getChar() == Char.EMPTY:
-                        move = cell.getCellNumber()
-
-                        newBoard = copy.deepcopy(board.copy())
-                        newBoard[move // 3][move % 3].setChar(char)
-
-                        nextState = MiniMaxState(newBoard, move)
-
-                        if char == Char.X:
-                            self.createStateTree(nextState, Char.O)
-
-                        else:
-                            self.createStateTree(nextState, Char.X)
-
-                        currState.addNextState(nextState)
-
-        else:
-            numEmpty = numEmptyCells(board) + 1
-
-            if gameState == GameState.WIN:
-                currState.setValue(numEmpty)
-
-            elif gameState == GameState.DEFEAT:
-                currState.setValue(-numEmpty)
-
-            else:
-                currState.setValue(0)
-            #for i in range(0, 3):
-            #    print(board[i])
-
-            #print(currState.getValue())
-            #print("\n")
+            if alpha >= beta:
+                break
+        #print(bestMove)
+        return value, bestMove
 
     def calculateNextMove(self, board):
+        gameState = checkGameState(board, self.__char)
+        if gameState != GameState.NOT_FINISHED:
+            return None
 
-        currState = MiniMaxState(board)
-        nextMove = -1
+        numEmpty = numEmptyCells(board)
+        if numEmpty == 9:
+            return random.randint(0, 8)
 
-        #if numEmptyCells(board) > 7:
-        #    return randomEmptyPosition(board)
-
-        self.createStateTree(currState, self.__char)
-        self.maxValue(currState, float('-inf'), float('inf'))
-
-        nextStates = currState.getNextStates().copy()
-
-        bestScore = float('-inf')
-
-        for state in nextStates:
-            if state.getValue() > bestScore:
-                bestScore = state.getValue()
-                nextMove = state.getMove()
-
-        return nextMove
+        bestMove = self.maxValue(board, float('-inf'), float('inf'), self.__char)[1]
+        return bestMove
 
     def getScore(self):
         return self.__score
@@ -137,4 +114,3 @@ class TicTacToeBot:
 
     def setScore(self, score):
         self.__score = score
-

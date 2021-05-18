@@ -16,6 +16,7 @@ class Char(Enum):
 class Mode(Enum):
     SINGLEPLAYER = 0
     MULTIPLAYER = 1
+    RANDOM = 2
 
 class Button():
     def __init__(self, text, x, y, color, textSize, width, height):
@@ -38,7 +39,7 @@ class Button():
         x1 = pos[0]
         y1 = pos[1]
         return (self.x <= x1 <= self.x + self.width) and (self.y <= y1 <= self.y + self.height)
-
+''''
 class MiniMaxState:
     def __init__(self, board, move = ()):
         self.__board = board
@@ -63,12 +64,22 @@ class MiniMaxState:
     def getNextStates(self):
         return self.__nextStates
 
-    def addNextState(self, newNextState):
-        self.__nextStates.append(newNextState)
+    def setNextStates(self, char):
+        for line in self.__board:
+            for cell in line:
+                if cell.getChar() == Char.EMPTY:
+                    move = cell.getCellNumber()
+
+                    newBoard = copy.deepcopy(self.__board.copy())
+                    newBoard[move // 3][move % 3].setChar(char)
+
+                    nextState = MiniMaxState(newBoard, move)
+
+                    self.__nextStates.append(nextState)
 
     def getMove(self):
         return self.__move
-'''
+
         self.__alpha = float('-inf')
         self.__beta = float('inf')
         

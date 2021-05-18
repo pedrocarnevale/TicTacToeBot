@@ -1,6 +1,7 @@
 from utils import Char
 from utils import GameState
 import random
+import copy
 
 def checkWinLines(board, char):
     for line in range(0, 3):
@@ -124,3 +125,16 @@ def randomEmptyPosition(board):
             possibilities.append(i)
 
     return possibilities[random.randint(0, len(possibilities) - 1)]
+
+def getNextMoves(board):
+    nextMoves = []
+    for i in range(0, 9):
+        if board[int(i / 3)][i % 3].getChar() == Char.EMPTY:
+            nextMoves.append(i)
+
+    return nextMoves
+
+def getNewBoard(board, move, char):
+    newBoard = copy.deepcopy(board.copy())
+    newBoard[int (move / 3)][move % 3].setChar(char)
+    return newBoard

@@ -5,6 +5,8 @@ from utils import Mode
 from utils import GameState
 from Cell import Cell
 from GameFunctions import checkGameState
+from GameFunctions import randomEmptyPosition
+from TicTacToeBot import TicTacToeBot
 import sys
 
 import pygame
@@ -38,10 +40,15 @@ class Environment:
         while self.__running:
             self.__clock.tick(60)
 
-            if self.__mode == Mode.SINGLEPLAYER and self.__currPlayer == 1:
+            isBotTurn = self.__mode != Mode.MULTIPLAYER and type(self.__players[self.__currPlayer]) is TicTacToeBot
+            isRandomTurn = self.__mode == Mode.RANDOM and self.__players[self.__currPlayer].getName() == "Random"
 
+            if isBotTurn:
                 move = self.__players[self.__currPlayer].calculateNextMove(self.__board)
+            if isRandomTurn:
+                move = randomEmptyPosition(self.__board)
 
+            if isBotTurn or isRandomTurn:
                 playerChar = self.__players[self.__currPlayer].getChar()
 
                 if playerChar == Char.X:
@@ -50,26 +57,14 @@ class Environment:
                     self.__board[move // 3][move % 3].setChar(Char.O)
 
                 gameState = checkGameState(self.__board, playerChar)
-                '''
-                for i in range(0, 3):
-                    print(self.__board[i])
-
-                if gameState == GameState.NOT_FINISHED:
-                    print("Not finished")
-                if gameState == GameState.DEFEAT:
-                    print("Defeat")
-                if gameState == GameState.TIE:
-                    print("Tie")
-                if gameState == GameState.WIN:
-                    print("Win")
-                '''
                 if gameState == GameState.NOT_FINISHED:
                     self.__currPlayer = (self.__currPlayer + 1) % 2
 
                 else:
                     self.restart()
                     self.endGame(gameState)
-                    pygame.time.delay(2000)
+                    if self.__mode != Mode.RANDOM:
+                        pygame.time.delay(2000)
 
             for event in pygame.event.get():
 
@@ -77,7 +72,7 @@ class Environment:
                     pygame.quit()
                     sys.exit()
 
-                if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0]:
+                if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and self.__mode != Mode.RANDOM:
                     position = pygame.mouse.get_pos()
 
                     for line in self.__board:
@@ -94,16 +89,6 @@ class Environment:
 
                                 #If the game is not over, change the player
                                 gameState = checkGameState(self.__board, playerChar)
-                                '''
-                                if gameState == GameState.NOT_FINISHED:
-                                    print("Not finished")
-                                if gameState == GameState.DEFEAT:
-                                    print("Defeat")
-                                if gameState == GameState.TIE:
-                                    print("Tie")
-                                if gameState == GameState.WIN:
-                                    print("Win")
-                                '''
                                 if gameState == GameState.NOT_FINISHED:
                                     self.__currPlayer = (self.__currPlayer + 1) % 2
 
@@ -179,6 +164,8 @@ class Environment:
     
             pygame.draw.line(self.__window, (255, 255, 255), initialPos, finalPos, 5)
         '''
+        if self.__mode == Mode.RANDOM:
+            self.__currPlayer = 0
         pygame.display.update()
 
     def restart(self):

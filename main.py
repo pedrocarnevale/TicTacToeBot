@@ -14,9 +14,11 @@ from Player import Player
 window = pygame.display.set_mode((gameConfig['width'], gameConfig['height']))
 pygame.display.set_caption("TicTacToe")
 
-modeMenu = GameModeMenu(window)
-modeMenu.update()
-mode = modeMenu.getMode()
+#modeMenu = GameModeMenu(window)
+#modeMenu.update()
+#mode = modeMenu.getMode()
+
+mode = Mode.RANDOM
 
 players = []
 
@@ -50,6 +52,18 @@ elif mode == Mode.MULTIPLAYER:
     p2Menu.update()
     player2 = p2Menu.getPlayer()
     players.append(player2)
+else:
+    player1 = Player("Random", Char.X)
+    players.append(player1)
+
+    players.append(TicTacToeBot("Bot", Char.O))
+'''
+else:
+    players.append(TicTacToeBot("Bot", Char.O))
+
+    player2 = Player("Random", Char.X)
+    players.append(player2)
+'''
 
 environment = Environment(mode, players, window)
 
