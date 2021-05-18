@@ -9,6 +9,7 @@ from TicTacToeBot import TicTacToeBot
 from PlayerMenu import PlayerMenu
 from GameModeMenu import GameModeMenu
 from Environment import Environment
+from Player import Player
 
 window = pygame.display.set_mode((gameConfig['width'], gameConfig['height']))
 pygame.display.set_caption("TicTacToe")
@@ -33,7 +34,7 @@ if mode == Mode.SINGLEPLAYER:
 
     players.append(TicTacToeBot("Bot", p2Char))
 
-else:
+elif mode == Mode.MULTIPLAYER:
     p1Menu = PlayerMenu(1, window)
     p1Menu.update()
     player1 = p1Menu.getPlayer()

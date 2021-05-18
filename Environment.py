@@ -38,6 +38,39 @@ class Environment:
         while self.__running:
             self.__clock.tick(60)
 
+            if self.__mode == Mode.SINGLEPLAYER and self.__currPlayer == 1:
+
+                move = self.__players[self.__currPlayer].calculateNextMove(self.__board)
+
+                playerChar = self.__players[self.__currPlayer].getChar()
+
+                if playerChar == Char.X:
+                    self.__board[move // 3][move % 3].setChar(Char.X)
+                else:
+                    self.__board[move // 3][move % 3].setChar(Char.O)
+
+                gameState = checkGameState(self.__board, playerChar)
+                '''
+                for i in range(0, 3):
+                    print(self.__board[i])
+
+                if gameState == GameState.NOT_FINISHED:
+                    print("Not finished")
+                if gameState == GameState.DEFEAT:
+                    print("Defeat")
+                if gameState == GameState.TIE:
+                    print("Tie")
+                if gameState == GameState.WIN:
+                    print("Win")
+                '''
+                if gameState == GameState.NOT_FINISHED:
+                    self.__currPlayer = (self.__currPlayer + 1) % 2
+
+                else:
+                    self.restart()
+                    self.endGame(gameState)
+                    pygame.time.delay(2000)
+
             for event in pygame.event.get():
 
                 if event.type == pygame.QUIT:
@@ -61,26 +94,20 @@ class Environment:
 
                                 #If the game is not over, change the player
                                 gameState = checkGameState(self.__board, playerChar)
-
+                                '''
+                                if gameState == GameState.NOT_FINISHED:
+                                    print("Not finished")
+                                if gameState == GameState.DEFEAT:
+                                    print("Defeat")
+                                if gameState == GameState.TIE:
+                                    print("Tie")
+                                if gameState == GameState.WIN:
+                                    print("Win")
+                                '''
                                 if gameState == GameState.NOT_FINISHED:
                                     self.__currPlayer = (self.__currPlayer + 1) % 2
 
-                                    if self.__mode == Mode.SINGLEPLAYER and self.__currPlayer == 1:
-
-                                        move = self.__players[self.__currPlayer].calculateNextMove(self, self.__board)
-
-                                        playerChar = self.__players[self.__currPlayer].getChar()
-
-                                        if playerChar == Char.X:
-                                            self.__board[move // 3][move % 3].setChar(Char.X)
-                                        else:
-                                            self.__board[move // 3][move % 3].setChar(Char.O)
-
-                                        self.__currPlayer = (self.__currPlayer + 1) % 2
-
-                                gameState = checkGameState(self.__board, playerChar)
-
-                                if gameState != GameState.NOT_FINISHED:
+                                else:
                                     self.restart()
                                     self.endGame(gameState)
                                     pygame.time.delay(2000)

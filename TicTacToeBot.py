@@ -4,7 +4,9 @@ from utils import fontsConfig
 from utils import GameState
 from GameFunctions import checkGameState
 from GameFunctions import numEmptyCells
+from GameFunctions import randomEmptyPosition
 import copy
+
 
 class TicTacToeBot:
     def __init__(self, name, char):
@@ -57,10 +59,10 @@ class TicTacToeBot:
 
         return state.getValue()
 
-    def createStateTree(self, env, currState, char):
+    def createStateTree(self, currState, char):
         board = currState.getBoard()
 
-        gameState = checkGameState(board, char)
+        gameState = checkGameState(board, self.__char)
 
         if gameState == GameState.NOT_FINISHED:
             for line in board:
@@ -74,17 +76,15 @@ class TicTacToeBot:
                         nextState = MiniMaxState(newBoard, move)
 
                         if char == Char.X:
-                            self.createStateTree(env, nextState, Char.O)
-
-                        elif char == Char.O:
-                            self.createStateTree(env, nextState, Char.X)
+                            self.createStateTree(nextState, Char.O)
 
                         else:
-                            raise Exception("Programa melhor essa bagaça")
+                            self.createStateTree(nextState, Char.X)
 
                         currState.addNextState(nextState)
+
         else:
-            numEmpty = numEmptyCells(board)
+            numEmpty = numEmptyCells(board) + 1
 
             if gameState == GameState.WIN:
                 currState.setValue(numEmpty)
@@ -94,27 +94,31 @@ class TicTacToeBot:
 
             else:
                 currState.setValue(0)
+            #for i in range(0, 3):
+            #    print(board[i])
 
-    def calculateNextMove(self, environment, board):
+            #print(currState.getValue())
+            #print("\n")
+
+    def calculateNextMove(self, board):
 
         currState = MiniMaxState(board)
+        nextMove = -1
 
-        self.createStateTree(environment, currState, self.__char)
+        #if numEmptyCells(board) > 7:
+        #    return randomEmptyPosition(board)
+
+        self.createStateTree(currState, self.__char)
         self.maxValue(currState, float('-inf'), float('inf'))
 
         nextStates = currState.getNextStates().copy()
 
         bestScore = float('-inf')
 
-        nextMove = -1
-
         for state in nextStates:
             if state.getValue() > bestScore:
                 bestScore = state.getValue()
                 nextMove = state.getMove()
-
-        if nextMove < 0:
-            raise Exception("Programe melhor essa logica")
 
         return nextMove
 
