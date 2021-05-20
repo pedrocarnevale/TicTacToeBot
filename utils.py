@@ -1,6 +1,5 @@
 from enum import Enum
 import pygame
-import copy
 
 class GameState(Enum):
     NOT_FINISHED = 0
@@ -13,96 +12,42 @@ class Char(Enum):
     X = 1
     O = 2
 
-class Mode(Enum):
-    SINGLEPLAYER = 0
-    MULTIPLAYER = 1
-    RANDOM = 2
+class BotType(Enum):
+    MINIMAX = 0
+    RANDOM = 1
 
 class Button():
     def __init__(self, text, x, y, color, textSize, width, height):
-        self.text = text
-        self.x = x
-        self.y = y
-        self.color = color
-        self.width = width
-        self.height = height
-        self.textSize = textSize
+        self.__text = text
+        self.__x = x
+        self.__y = y
+        self.__color = color
+        self.__width = width
+        self.__height = height
+        self.__textSize = textSize
+        self.__isClicked = False
 
     def draw(self, window):
-        pygame.draw.rect(window, self.color, (self.x, self.y, self.width, self.height))
-        font = pygame.font.SysFont("comicsansms", self.textSize)
-        text = font.render(self.text, True, (255, 255, 255))
-        window.blit(text, (self.x + round(self.width / 2) - round(text.get_width() / 2),
-                        self.y + round(self.height / 2) - round(text.get_height() / 2)))
+        if self.__isClicked:
+            pygame.draw.rect(window, gameConfig['clickedColor'], (self.__x, self.__y, self.__width, self.__height))
+        else:
+            pygame.draw.rect(window, self.__color, (self.__x, self.__y, self.__width, self.__height))
+        font = pygame.font.SysFont("comicsansms", self.__textSize)
+        text = font.render(self.__text, True, (255, 255, 255))
+        window.blit(text, (self.__x + round(self.__width / 2) - round(text.get_width() / 2),
+                        self.__y + round(self.__height / 2) - round(text.get_height() / 2)))
 
     def click(self, pos):
         x1 = pos[0]
         y1 = pos[1]
-        return (self.x <= x1 <= self.x + self.width) and (self.y <= y1 <= self.y + self.height)
-''''
-class MiniMaxState:
-    def __init__(self, board, move = ()):
-        self.__board = board
-        self.__nextStates = []
+        return (self.__x <= x1 <= self.__x + self.__width) and (self.__y <= y1 <= self.__y + self.__height)
 
-        self.__move = move
+    def setIsClicked(self, isClicked):
+        self.__isClicked = isClicked
 
-        self.__value = float('inf')
+    def getIsClicked(self):
+        return self.__isClicked
 
-    def getBoard(self):
-        return self.__board
-
-    def setBoard(self, newBoard):
-        self.__board = newBoard
-
-    def getValue(self):
-        return self.__value
-
-    def setValue(self, newValue):
-        self.__value = newValue
-
-    def getNextStates(self):
-        return self.__nextStates
-
-    def setNextStates(self, char):
-        for line in self.__board:
-            for cell in line:
-                if cell.getChar() == Char.EMPTY:
-                    move = cell.getCellNumber()
-
-                    newBoard = copy.deepcopy(self.__board.copy())
-                    newBoard[move // 3][move % 3].setChar(char)
-
-                    nextState = MiniMaxState(newBoard, move)
-
-                    self.__nextStates.append(nextState)
-
-    def getMove(self):
-        return self.__move
-
-        self.__alpha = float('-inf')
-        self.__beta = float('inf')
-        
-        if self.__MinOrMax == MinOrMax.MIN:
-            self.__value = float('inf')
-        elif self.__MinOrMax == MinOrMax.MAX:
-            self.__value = float('-inf')
-    
-    def getNextStates(self):
-        return self.__nextStates
-
-    def getAlpha(self):
-        return self.__alpha
-
-    def setAlpha(self, newAlpha):
-        self.__alpha = newAlpha
-
-    def getBeta(self):
-        return self.__beta
-
-    def setBeta(self, newBeta):
-        self.__beta = newBeta
-'''
 fontsConfig = {
             'charFont': pygame.font.SysFont("comicsansms", 120),
             'bigFont': pygame.font.SysFont("comicsansms", 40),
@@ -122,6 +67,7 @@ gameConfig = {
             'boardSize': 400,
             'boardPos': (150, 200),
             'screenColor': (0, 0, 100),
+            'clickedColor': (0, 0, 50),
             'titleText': fontsConfig['bigFont'].render("Tic Tac Toe", True, fontsConfig['titleColor']),
             'titlePos': (250, 0),
             'namesPos': (0, 60),

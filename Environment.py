@@ -1,33 +1,20 @@
 from utils import gameConfig
 from utils import fontsConfig
 from utils import Char
-from utils import Mode
 from utils import GameState
 from Cell import Cell
 from GameFunctions import checkGameState
-from GameFunctions import randomEmptyPosition
 from TicTacToeBot import TicTacToeBot
 import sys
 
 import pygame
 
 class Environment:
-
-    def __init__(self, mode, players, window):
-
+    def __init__(self, players, window):
         self.__window = window
-
-        self.__clock = pygame.time.Clock()
-
-        self.__running = True
-
         self.__round = 0
-
-        self.__mode = mode
-
         self.__players = players
         self.__currPlayer = 0
-
         self.__board = [[], [], []]
 
         for i in range(0, 9):
@@ -36,71 +23,41 @@ class Environment:
             self.__board[line].append(newCell)
 
     def update(self):
+        isBotTurn = type(self.__players[self.__currPlayer]) is TicTacToeBot
+        if type(self.__players[self.__currPlayer]) is TicTacToeBot:
+            move = self.__players[self.__currPlayer].calculateNextMove(self.__board)
+            botChar = self.__players[self.__currPlayer].getChar()
 
-        while self.__running:
-            self.__clock.tick(60)
+            self.roundUpdate(move, botChar)
+            pygame.time.delay(500)
 
-            isBotTurn = self.__mode != Mode.MULTIPLAYER and type(self.__players[self.__currPlayer]) is TicTacToeBot
-            isRandomTurn = self.__mode == Mode.RANDOM and self.__players[self.__currPlayer].getName() == "Random"
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
 
-            if isBotTurn:
-                move = self.__players[self.__currPlayer].calculateNextMove(self.__board)
-            if isRandomTurn:
-                move = randomEmptyPosition(self.__board)
+            if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and not isBotTurn:
+                position = pygame.mouse.get_pos()
+                for line in self.__board:
+                    for cell in line:
+                        if cell.contains(position) and cell.getChar() == Char.EMPTY:
+                            playerChar = self.__players[self.__currPlayer].getChar()
+                            self.roundUpdate(cell.getCellNumber(), playerChar)
 
-            if isBotTurn or isRandomTurn:
-                playerChar = self.__players[self.__currPlayer].getChar()
+    def roundUpdate(self, move, char):
+        self.__board[move // 3][move % 3].setChar(char)
 
-                if playerChar == Char.X:
-                    self.__board[move // 3][move % 3].setChar(Char.X)
-                else:
-                    self.__board[move // 3][move % 3].setChar(Char.O)
+        gameState = checkGameState(self.__board, char)
+        if gameState == GameState.NOT_FINISHED:
+            self.__currPlayer = (self.__currPlayer + 1) % 2
 
-                gameState = checkGameState(self.__board, playerChar)
-                if gameState == GameState.NOT_FINISHED:
-                    self.__currPlayer = (self.__currPlayer + 1) % 2
-
-                else:
-                    self.restart()
-                    self.endGame(gameState)
-                    if self.__mode != Mode.RANDOM:
-                        pygame.time.delay(2000)
-
-            for event in pygame.event.get():
-
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
-
-                if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] and self.__mode != Mode.RANDOM:
-                    position = pygame.mouse.get_pos()
-
-                    for line in self.__board:
-
-                        for cell in line:
-
-                            if cell.contains(position) and cell.getChar() == Char.EMPTY:
-                                playerChar = self.__players[self.__currPlayer].getChar()
-
-                                if playerChar == Char.X:
-                                    cell.setChar(Char.X)
-                                else:
-                                    cell.setChar(Char.O)
-
-                                #If the game is not over, change the player
-                                gameState = checkGameState(self.__board, playerChar)
-                                if gameState == GameState.NOT_FINISHED:
-                                    self.__currPlayer = (self.__currPlayer + 1) % 2
-
-                                else:
-                                    self.restart()
-                                    self.endGame(gameState)
-                                    pygame.time.delay(2000)
-
-            self.draw()
+        else:
+            self.restart()
+            self.endGame(gameState)
+            if type(self.__players[0]) is not TicTacToeBot or type(self.__players[0]) is not TicTacToeBot:
+                pygame.time.delay(2000)
 
     def draw(self):
-
         self.__window.fill(gameConfig['screenColor'])
 
         #Draw title
@@ -141,7 +98,6 @@ class Environment:
         pygame.display.update()
 
     def endGame(self, gameState):
-
         if gameState != GameState.TIE:
             currPlayerId = self.__currPlayer
             currPlayerName = self.__players[currPlayerId].getName()
@@ -155,17 +111,6 @@ class Environment:
         else:
             scoreText = fontsConfig['bigFont'].render("Tie!!", True, fontsConfig['scoreColor'])
             self.__window.blit(scoreText, (gameConfig['scorePos'][0] + 50, gameConfig['scorePos'][1]))
-        '''
-            # Draw win line
-            bSize = gameConfig['boardSize']
-    
-            initialPos = (area1.left + bSize / 6, area1.top + bSize / 6)
-            finalPos = (area2.left + bSize / 6, area2.top + bSize / 6)
-    
-            pygame.draw.line(self.__window, (255, 255, 255), initialPos, finalPos, 5)
-        '''
-        if self.__mode == Mode.RANDOM:
-            self.__currPlayer = 0
         pygame.display.update()
 
     def restart(self):

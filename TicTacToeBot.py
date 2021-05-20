@@ -1,6 +1,7 @@
 from utils import Char
 from utils import fontsConfig
 from utils import GameState
+from utils import BotType
 from GameFunctions import getNextMoves
 from GameFunctions import checkGameState
 from GameFunctions import numEmptyCells
@@ -8,10 +9,11 @@ from GameFunctions import getNewBoard
 import random
 
 class TicTacToeBot:
-    def __init__(self, name, char):
+    def __init__(self, name, char, type):
         self.__name = name
         self.__char = char
         self.__score = 0
+        self.__type = type
 
     def minValue(self, board, alpha, beta, char):
         gameState = checkGameState(board, self.__char)
@@ -88,16 +90,25 @@ class TicTacToeBot:
         return value, bestMove
 
     def calculateNextMove(self, board):
-        gameState = checkGameState(board, self.__char)
-        if gameState != GameState.NOT_FINISHED:
-            return None
+        if self.__type == BotType.MINIMAX:
+            gameState = checkGameState(board, self.__char)
+            if gameState != GameState.NOT_FINISHED:
+                return None
 
-        numEmpty = numEmptyCells(board)
-        if numEmpty == 9:
-            return random.randint(0, 8)
+            numEmpty = numEmptyCells(board)
+            if numEmpty == 9:
+                return random.randint(0, 8)
 
-        bestMove = self.maxValue(board, float('-inf'), float('inf'), self.__char)[1]
-        return bestMove
+            bestMove = self.maxValue(board, float('-inf'), float('inf'), self.__char)[1]
+            return bestMove
+
+        else:
+            possibilities = []
+            for i in range(0, 9):
+                if board[int(i / 3)][i % 3].getChar() == Char.EMPTY:
+                    possibilities.append(i)
+
+            return possibilities[random.randint(0, len(possibilities) - 1)]
 
     def getScore(self):
         return self.__score

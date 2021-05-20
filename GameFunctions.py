@@ -69,7 +69,6 @@ def checkWinDiagonal(board, char):
     #print(f"{char10} {char11} {char12}\n")
     if char10 != empty and char11 != empty and char12 != empty:
         if char10 == char11 == char12:
-
             if char10 == char:
                 #print("diagonal secundária - vitoria\n")
                 return GameState.WIN
@@ -90,7 +89,6 @@ def checkTie(board):
     return GameState.TIE
 
 def checkGameState(board, char):
-
     gameOver1 = checkWinLines(board, char)
     if gameOver1 == GameState.WIN or gameOver1 == GameState.DEFEAT:
         return gameOver1
@@ -108,7 +106,6 @@ def checkGameState(board, char):
     return gameOver4
 
 def numEmptyCells(board):
-
     numEmpty = 0
 
     for line in board:
@@ -117,14 +114,6 @@ def numEmptyCells(board):
                 numEmpty += 1
 
     return numEmpty
-
-def randomEmptyPosition(board):
-    possibilities = []
-    for i in range(0, 9):
-        if board[int(i / 3)][i % 3].getChar() == Char.EMPTY:
-            possibilities.append(i)
-
-    return possibilities[random.randint(0, len(possibilities) - 1)]
 
 def getNextMoves(board):
     nextMoves = []

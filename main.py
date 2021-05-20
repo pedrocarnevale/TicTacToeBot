@@ -3,68 +3,25 @@ pygame.init()
 pygame.font.init()
 
 from utils import gameConfig
-from utils import Mode
-from utils import Char
-from TicTacToeBot import TicTacToeBot
-from PlayerMenu import PlayerMenu
-from GameModeMenu import GameModeMenu
+from Menu import Menu
 from Environment import Environment
-from Player import Player
 
 window = pygame.display.set_mode((gameConfig['width'], gameConfig['height']))
 pygame.display.set_caption("TicTacToe")
-
-#modeMenu = GameModeMenu(window)
-#modeMenu.update()
-#mode = modeMenu.getMode()
-
-mode = Mode.RANDOM
+clock = pygame.time.Clock()
 
 players = []
+menu = Menu(players, window)
 
-if mode == Mode.SINGLEPLAYER:
-    p1Menu = PlayerMenu(1, window)
-    p1Menu.update()
-    player1 = p1Menu.getPlayer()
-    players.append(player1)
+while menu.isWindowRunning():
+    menu.update()
+    menu.draw()
 
-    p1Char = players[0].getChar()
-    if p1Char == Char.X:
-        p2Char = Char.O
-    else:
-        p2Char = Char.X
+players = menu.getPlayers()
 
-    players.append(TicTacToeBot("Bot", p2Char))
+environment = Environment(players, window)
 
-elif mode == Mode.MULTIPLAYER:
-    p1Menu = PlayerMenu(1, window)
-    p1Menu.update()
-    player1 = p1Menu.getPlayer()
-    players.append(player1)
-
-    p1Char = players[0].getChar()
-    if p1Char == Char.X:
-        p2Char = Char.O
-    else:
-        p2Char = Char.X
-
-    p2Menu = PlayerMenu(2, window, p2Char)
-    p2Menu.update()
-    player2 = p2Menu.getPlayer()
-    players.append(player2)
-else:
-    player1 = Player("Random", Char.X)
-    players.append(player1)
-
-    players.append(TicTacToeBot("Bot", Char.O))
-'''
-else:
-    players.append(TicTacToeBot("Bot", Char.O))
-
-    player2 = Player("Random", Char.X)
-    players.append(player2)
-'''
-
-environment = Environment(mode, players, window)
-
-environment.update()
+while True:
+    clock.tick(60)
+    environment.update()
+    environment.draw()
